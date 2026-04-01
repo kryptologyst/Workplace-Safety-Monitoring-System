@@ -1,0 +1,117 @@
+# Safety Monitoring Configuration
+defaults:
+  - _self_
+
+# Data configuration
+data:
+  synthetic:
+    n_samples: 1000
+    n_features: 5
+    contamination: 0.1
+    random_seed: 42
+  
+  sensors:
+    temperature:
+      normal_range: [15, 35]  # Celsius
+      critical_threshold: 60
+      unit: "°C"
+    
+    gas_level:
+      normal_range: [0, 10]  # ppm
+      critical_threshold: 25
+      unit: "ppm"
+    
+    vibration:
+      normal_range: [0, 0.5]  # G-force
+      critical_threshold: 1.0
+      unit: "G"
+    
+    noise_level:
+      normal_range: [40, 80]  # dB
+      critical_threshold: 100
+      unit: "dB"
+    
+    humidity:
+      normal_range: [30, 70]  # %
+      critical_threshold: 90
+      unit: "%"
+
+# Model configuration
+models:
+  isolation_forest:
+    contamination: 0.1
+    random_state: 42
+    n_estimators: 100
+  
+  one_class_svm:
+    nu: 0.1
+    kernel: "rbf"
+    gamma: "scale"
+  
+  local_outlier_factor:
+    n_neighbors: 20
+    contamination: 0.1
+  
+  ensemble:
+    methods: ["isolation_forest", "one_class_svm", "local_outlier_factor"]
+    voting: "soft"
+    weights: [0.4, 0.3, 0.3]
+
+# Evaluation configuration
+evaluation:
+  metrics:
+    - "precision"
+    - "recall"
+    - "f1"
+    - "auc_roc"
+    - "auc_pr"
+    - "precision_at_k"
+  
+  k_values: [5, 10, 20]
+  
+  cross_validation:
+    n_folds: 5
+    random_state: 42
+
+# Alert configuration
+alerts:
+  severity_levels:
+    low: 0.3
+    medium: 0.6
+    high: 0.8
+    critical: 0.95
+  
+  notification:
+    email_enabled: false
+    slack_enabled: false
+    dashboard_enabled: true
+
+# Compliance and fairness
+compliance:
+  bias_check:
+    enabled: true
+    protected_attributes: []
+  
+  audit_logging:
+    enabled: true
+    retention_days: 90
+  
+  data_privacy:
+    anonymization: true
+    pii_detection: true
+
+# Visualization
+viz:
+  plot_style: "seaborn-v0_8"
+  figure_size: [12, 8]
+  color_palette: "Set2"
+  
+  dashboard:
+    refresh_interval: 30  # seconds
+    max_alerts_display: 100
+
+# Logging
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "logs/safety_monitoring.log"
